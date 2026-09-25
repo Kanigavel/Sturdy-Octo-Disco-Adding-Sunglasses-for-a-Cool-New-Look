@@ -26,3 +26,77 @@ Welcome to Sturdy Octo Disco, a fun and creative project designed to overlay sun
 - Practicing computer vision workflows.
 
 Feel free to fork, contribute, or customize this project for your creative needs!
+````
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+faceImage = cv2.imread('ws.jpg')
+plt.imshow(faceImage[:,:,::-1]);plt.title("Face")
+
+
+faceImage.shape
+
+glassPNG = cv2.imread('sunglass.png',-1)
+plt.imshow(glassPNG[:,:,::-1]);plt.title("glassPNG")
+
+
+glassPNG = cv2.resize(glassPNG,(500,400))
+print("image Dimension ={}".format(glassPNG.shape))
+
+
+glassBGR = glassPNG[:,:,0:3]
+glassMask1 = glassPNG[:,:,3]
+
+
+plt.figure(figsize=[15,15])
+plt.subplot(121);plt.imshow(glassBGR[:,:,::-1]);plt.title('Sunglass Color channels');
+plt.subplot(122);plt.imshow(glassMask1,cmap='gray');plt.title('Sunglass Alpha channel');
+
+
+faceWithGlassesNaive = faceImage.copy()
+
+faceWithGlassesNaive[230:630,250:750]=glassBGR
+
+plt.imshow(faceWithGlassesNaive[...,::-1])
+
+
+glassMask = cv2.merge((glassMask1,glassMask1,glassMask1))
+
+glassMask = np.uint8(glassMask/255)
+
+faceWithGlassesArithmetic = faceImage.copy()
+
+eyeROI= faceWithGlassesArithmetic[230:630,250:750]
+
+maskedEye = cv2.multiply(eyeROI,(1-  glassMask ))
+
+maskedGlass = cv2.multiply(glassBGR,glassMask)
+
+eyeRoiFinal = cv2.add(maskedEye, maskedGlass)
+
+plt.figure(figsize=[20,20])
+plt.subplot(131);plt.imshow(maskedEye[...,::-1]);plt.title("Masked Eye Region")
+plt.subplot(132);plt.imshow(maskedGlass[...,::-1]);plt.title("Masked Sunglass Region")
+plt.subplot(133);plt.imshow(eyeRoiFinal[...,::-1]);plt.title("Augmented Eye and Sunglass")
+
+
+faceWithGlassesArithmetic[230:630,250:750]=eyeRoiFinal
+
+plt.figure(figsize=[20,20]);
+plt.subplot(121);plt.imshow(faceImage[:,:,::-1]); plt.title("Original Image");
+plt.subplot(122);plt.imshow(faceWithGlassesArithmetic[:,:,::-1]);plt.title("With Sunglasses");
+````
+
+## OUTPUT :
+
+<img width="433" height="450" alt="image" src="https://github.com/user-attachments/assets/35236acc-b487-4f5a-8cb9-a56f7c50516b" />
+<img width="517" height="536" alt="image" src="https://github.com/user-attachments/assets/907e56c5-36da-4bf1-aba1-00d36e73d5ca" />
+<img width="1345" height="543" alt="image" src="https://github.com/user-attachments/assets/7783429f-a06e-442b-ba9c-3413d1001810" />
+<img width="1751" height="841" alt="image" src="https://github.com/user-attachments/assets/be34ddb7-fd68-471f-a3ae-8ccd868f9c9c" />
+
+
+
+
